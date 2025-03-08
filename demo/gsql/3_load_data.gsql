@@ -6,6 +6,8 @@ SET sys.data_root="~/data/KGRec"
 CREATE LOADING JOB loading_job FOR GRAPH KGRec {
   DEFINE FILENAME f1 = "$sys.data_root/song_embeddings.csv";
   DEFINE FILENAME f2 = "$sys.data_root/implicit_lf_dataset.csv";
+  DEFINE FILENAME f3 = "$sys.data_root/similar_songs.csv";
+
 
   LOAD f1
     TO VERTEX Song VALUES($"item_id", $"description"),
@@ -17,6 +19,10 @@ CREATE LOADING JOB loading_job FOR GRAPH KGRec {
     TO VERTEX Song VALUES($1, _),
     TO EDGE downloaded VALUES($0, $1)
     USING SEPARATOR="\t", HEADER="false", EOL="\n", QUOTE="DOUBLE";
+
+  LOAD f3
+    TO EDGE similar_to VALUES($0, $1, $2)
+    USING SEPARATOR=",", HEADER="true", EOL="\n", QUOTE="DOUBLE";
 }
 
 # 3. Run loading job
