@@ -2,7 +2,7 @@
 USE GRAPH KGRec
 
 # 2. Create loading job
-SET sys.data_root="~/data/hybrid-search-demo"
+SET sys.data_root="~/data/hybrid-search-demo/demo/data"
 CREATE LOADING JOB loading_job FOR GRAPH KGRec {
   DEFINE FILENAME f1 = "$sys.data_root/song_embeddings.csv";
   DEFINE FILENAME f2 = "$sys.data_root/implicit_lf_dataset.csv";

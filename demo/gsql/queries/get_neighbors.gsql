@@ -1,7 +1,7 @@
 CREATE OR REPLACE QUERY get_neighbors(
   SET<VERTEX<Song>> input,
   UINT k = 10
-) FOR GRAPH KGRec {
+) FOR GRAPH KGRec SYNTAX V3 {
   OrAccum @visited;
   SumAccum<DOUBLE> @sum_score;
   Songs = {input};
@@ -13,7 +13,7 @@ CREATE OR REPLACE QUERY get_neighbors(
   ;
   SimilarSongs =
     SELECT t
-    FROM Songs:s -(similar_to:e)- :t
+    FROM (s:Songs) -[e:similar_to]- (t)
     WHERE t.@visited == FALSE
     ACCUM t.@sum_score += e.score
     ORDER BY t.@sum_score DESC

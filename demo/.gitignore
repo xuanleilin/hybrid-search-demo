@@ -1,2 +1,1 @@
-output
-output/*
+data/song_embeddings.csv
