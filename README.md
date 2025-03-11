@@ -165,7 +165,7 @@ gsql 4_install_queries.gsql         # Install graph queries
 
 Return to your local machine’s terminal (outside the Docker container).
 
-Since we will be using OpenAI, please follow Step 1 in [3.2 Generate Embeddings with OpenAI](3#3.2 Generate Embeddings with OpenAI) to set up OpenAI API key if you haven’t done so already.
+Since we will be using OpenAI, please follow Step 1 in [3.2 Generate Embeddings with OpenAI](#32-generate-embeddings-with-openai) to set up OpenAI API key if you haven’t done so already.
 
 Then launch Jupyter Notebook:  
 
