@@ -1,43 +1,94 @@
-# **Hybrid Search Demo**
+# Hybrid Search Demo
 
-This repository demonstrates **Hybrid Search**, combining **graph-based search** and **vector-based search**, for **Recommendation Systems** and **QA Systems**.
+This repository demonstrates Hybrid Search, combining graph-based and vector-based search, for recommendation and QA systems.
 
 ---
 
-## **1. Clone the Repository**
-Clone the repository to your local machine:
+## 1. Set Up the Environment 
+
+If you're using your own machine (Windows, macOS, or Linux), the easiest way to run TigerGraph is via Docker.
+
+Follow these two steps in the [Docker setup instructions](https://github.com/tigergraph/ecosys/blob/master/demos/guru_scripts/docker/README.md) to set up the environment:
+
+- Install Docker Desktop  
+- Prepare a shared folder between the host OS and the Docker container  
+  - In this demo, we assume the shared folder `data` is located at `$HOME/Documents/`.
+
+Next, download the Docker image from [TigerGraph Downloads](https://dl.tigergraph.com/) and load it:
+
 ```bash
-git clone git@github.com:xuanleilin/hybrid-search-demo.git
-cd hybrid-search-demo
+docker load -i ./tigergraph-4.2.0-alpha-community-docker-image.tar.gz
 ```
 
+Once the image is loaded, verify its presence using:
+
+```bash
+docker images
+```
+
+Then, start a container:
+
+```bash
+docker run -d \
+  --platform linux/amd64 \
+  -p 14240:14240 \
+  -v $HOME/Documents/data:/home/tigergraph/data \
+  --name tigergraph_community \
+  tigergraph/community:4.2.0-alpha
+```
+
+### Notes:
+- Detached mode (`-d`): Runs the container in the background. Use `docker ps` to check running containers and `docker ps -a` to list all containers.
+- Apple Silicon compatibility: On macOS with Apple Silicon (M1/M2/M3), `--platform linux/amd64` is required. Remove it for Intel-based Macs, Linux, or Windows.
+- Port mapping (`-p 14240:14240`): Maps GraphStudio (port 14240) to localhost:14240 for web access.
+- Volume mapping (`-v $HOME/Documents/data:/home/tigergraph/data`): Ensures data persistence by sharing a folder between the host and the container.
+- Container management:
+  ```bash
+  docker stop tigergraph_community
+  docker start tigergraph_community
+  ```
+
 ---
 
-## **2. Install Dependencies**
-Ensure you have **Poetry** installed, then run:
+## 2. Set Up the Python Environment
+
+### 2.1 Clone the Repository
+Clone the repository to your local machine:
+
+```bash
+git clone git@github.com:xuanleilin/hybrid-search-demo.git $HOME/Documents/data/hybrid-search-demo
+cd $HOME/Documents/data/hybrid-search-demo
+```
+
+### 2.2 Install Poetry
+Follow the [Poetry installation guide](https://python-poetry.org/docs/#installing-with-pipx) to install Poetry, which manages the Python virtual environment for this demo.
+
+### 2.3 Install Dependencies
+Run:
+
 ```bash
 poetry install --no-root
 ```
-This will create a virtual environment and install all required dependencies.
 
----
+This creates a virtual environment and installs all required dependencies.
 
-## **3. Activate the Virtual Environment**
+### 2.4 Activate the Virtual Environment
 Activate the environment using:
+
 ```bash
 eval $(poetry env activate)
 ```
 
----
+## 3. Dataset Preparation (Optional)
+Generating the similarity graph and embeddings takes time. Since the data has already been generated, you can skip this step and download it from [link](TODO: add the link here) to `$HOME/Documents/data/hybrid-search-demo/demo/data`.
 
-## **4. Dataset Preparation**
-### **4.1 Generate the Similarity Graph**
-Use **MinHash (LSH) Approximation** to generate a **similarity graph**:
+### 3.1 Generate the Similarity Graph
+Use MinHash (LSH) Approximation to generate a similarity graph:
 ```bash
-cd demo
+cd $HOME/Documents/data/hybrid-search-demo/demo
 python3 similarity.py
 ```
-**Expected Output:**
+Expected Output:
 ```
 Loading dataset...
 Computing MinHash signatures...
@@ -45,76 +96,84 @@ Generating MinHash: 100%|██████████████████�
 Finding similar songs...
 Finding similar songs: 100%|███████████████████████| 8640/8640 [00:35<00:00, 244.80it/s]
 Saving results...
-Saved 4,583,182 similar song pairs to output/similar_songs.csv
+Saved 552094 similar song pairs to data/similar_songs.csv
 ```
 
-### **4.2 Generate Embeddings with OpenAI**
-Use OpenAI’s embedding model to generate **song embeddings**.
+### 3.2 Generate Embeddings with OpenAI
+Use OpenAI’s embedding model to generate song embeddings.
 
-#### **🔹 Step 1: Set up OpenAI API Key**
-Replace `<YOUR_OPENAI_KEY>` with your actual **OpenAI API key**:
+#### 🔹 Step 1: Set up OpenAI API Key
+Replace `<YOUR_OPENAI_KEY>` with your actual OpenAI API key:
 ```bash
 export OPENAI_API_KEY="<YOUR_OPENAI_KEY>"
 ```
 
-#### **🔹 Step 2: Run Embedding Generation**
+#### 🔹 Step 2: Run Embedding Generation
 ```bash
-python3 embedding_generator.py
-```
-
-### **4.3 Copy the Dataset to the TigerGraph Server**
-Copy the dataset to your **TigerGraph server** (assuming your data directory is `~/data/KGRec`):
-```bash
-scp output/* <YOUR_USERNAME>@<YOUR_TIGERGRAPH_SERVER>:~/data/KGRec
+python3 generator/embedding_generator.py
 ```
 
 ---
 
-## **5. Create Schema, Load Data, and Install Queries**
-There are **two methods** to create the schema and load data:
-1. **Using GSQL (Manual)**
-2. **Using TigerGraphX (Recommended)**
+## 4. Start the Server
+
+Open a new terminal and run the following command to enter the Docker container:
+
+```bash
+docker exec -it tigergraph_community /bin/bash
+```
+
+Once inside the container, start the TigerGraph server:
+
+```bash
+gadmin start all
+```
+
+Check the status of all components:  
+
+```bash
+gadmin status
+```
+
+If **GPE** and **GSE** show **Warmup** while other components are **Online**, congratulations—your server is up and running! Once a graph is inserted, all components, including **GPE** and **GSE**, will switch to **Online** status.
 
 ---
 
-### **5.1 Using GSQL**
-To set up the **graph schema** and load data manually:
+## 5. Create Schema, Load Data, and Install Queries  
 
-1. Copy the files from the `demo/gsql/` folder to your **TigerGraph server**.
-2. Run the following GSQL scripts in order:
-   ```bash
-   gsql 1_create_schema.gsql            # Create the schema
-   gsql 2_add_vector_attributes.gsql    # Add vector attributes
-   gsql 3_load_data.gsql                 # Load the dataset (modify `sys.data_root` if needed)
-   gsql 4_install_queries.gsql           # Install graph queries
-   ```
+Switch to the `gsql` folder:
+
+```bash
+cd $HOME/data/hybrid-search-demo/demo/gsql/
+```
+
+Run the following GSQL scripts in order:
+
+```bash
+gsql 1_create_schema.gsql           # Create the schema
+gsql 2_add_vector_attributes.gsql   # Add vector attributes
+gsql 3_load_data.gsql               # Load the dataset
+gsql 4_install_queries.gsql         # Install graph queries
+```
 
 ---
 
-### **5.2 Using TigerGraphX (Recommended)**
-**Step 1:** Launch **Jupyter Notebook**:
+## 6. Run the Recommendation and QA Systems
+
+Return to your local machine’s terminal (outside the Docker container).
+
+Since we will be using OpenAI, please follow Step 1 in [3.2 Generate Embeddings with OpenAI](3#3.2 Generate Embeddings with OpenAI) to set up OpenAI API key if you haven’t done so already.
+
+Then launch Jupyter Notebook:  
+
 ```bash
 jupyter notebook
 ```
-**Step 2:** Open `hybrid_search_demo.ipynb` and **run the commands** to:
-- Create schema
-- Load data
 
-**Step 3:** Install Queries in **GraphStudio**:
-1. Open **GraphStudio**:  
-   **http://<YOUR_TIGERGRAPH_HOST>:14240/studio/#/home**
-2. Add and install the queries inside:
-   - `get_neighbors.gsql`
-   - `graph_based_similarity_search.gsql`
+Open `hybrid_search_demo.ipynb` and run the following tasks:  
 
----
-
-## **6. Running Recommendation and QA Systems**
-Once the **graph schema and data** are loaded, run the commands in `hybrid_search_demo.ipynb` to perform:
-
-✅ **Graph-Based Similarity Search**  
-✅ **Vector-Based Similarity Search**  
-✅ **Hybrid Search**  
-✅ **Vector-Based Search for QA**  
-✅ **Hybrid Search for QA**  
-
+✅ Graph-Based Similarity Search  
+✅ Vector-Based Similarity Search  
+✅ Hybrid Search  
+✅ Vector-Based Search for QA  
+✅ Hybrid Search for QA  
