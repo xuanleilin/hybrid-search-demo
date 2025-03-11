@@ -60,17 +60,20 @@ git clone git@github.com:xuanleilin/hybrid-search-demo.git $HOME/Documents/data/
 cd $HOME/Documents/data/hybrid-search-demo
 ```
 
-### 2.2 Install Poetry
-Follow the [Poetry installation guide](https://python-poetry.org/docs/#installing-with-pipx) to install Poetry, which manages the Python virtual environment for this demo.
+### 2.2 Install Poetry and Python
+
+Follow the [Poetry installation guide](https://python-poetry.org/docs/#installing-with-pipx) to install Poetry, which will manage the Python virtual environment for this demo.
+
+Ensure you have **Python 3.10–3.12** installed, as it is required for the demo. You can download and install it from the [official Python website](https://www.python.org/downloads/).
 
 ### 2.3 Install Dependencies
-Run:
+
+Run the following commands to create a virtual environment and install all required dependencies:  
 
 ```bash
+poetry env use python3.12  # Replace with your Python version (3.10–3.12)
 poetry install --no-root
 ```
-
-This creates a virtual environment and installs all required dependencies.
 
 ### 2.4 Activate the Virtual Environment
 Activate the environment using:
