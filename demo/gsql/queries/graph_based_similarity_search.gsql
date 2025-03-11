@@ -1,3 +1,4 @@
+USE GRAPH KGRec
 CREATE OR REPLACE QUERY graph_based_similarity_search(
   VERTEX<User> input,
   UINT k = 10
@@ -7,13 +8,13 @@ CREATE OR REPLACE QUERY graph_based_similarity_search(
   Users = {input};
   Songs =
     SELECT t
-    FROM (s:Users) -[downloaded:e]- (t)
+    FROM (s:Users) -[e:downloaded]- (t)
     POST-ACCUM
       t.@visited = TRUE
   ;
   SimilarSongs =
     SELECT t
-    FROM (s:Songs) -[similar_to:e]- (t)
+    FROM (s:Songs) -[e:similar_to]- (t)
     WHERE t.@visited == FALSE
     ACCUM t.@sum_score += e.score
     ORDER BY t.@sum_score DESC
