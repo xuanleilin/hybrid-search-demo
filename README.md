@@ -89,7 +89,7 @@ Generating the similarity graph and embeddings takes time. Since the data has al
 Use MinHash (LSH) Approximation to generate a similarity graph:
 ```bash
 cd $HOME/Documents/data/hybrid-search-demo/demo
-python3 similarity.py
+python3 generator/similarity.py
 ```
 Expected Output:
 ```
