@@ -12,7 +12,7 @@ Follow these two steps in the [Docker setup instructions](https://github.com/tig
 
 - Install Docker Desktop  
 - Prepare a shared folder between the host OS and the Docker container  
-  - In this demo, we assume the shared folder `data` is located at `$HOME/Documents/`.
+  - In this demo, we assume the shared folder `data` is located at `$HOME/Documents/`. If it does not exist, please create it using `mkdir -p $HOME/Documents/data`.
 
 Next, download the Docker image from [TigerGraph Downloads](https://dl.tigergraph.com/) and load it:
 
