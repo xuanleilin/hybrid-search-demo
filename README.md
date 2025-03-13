@@ -81,11 +81,18 @@ Activate the environment using:
 ```bash
 eval $(poetry env activate)
 ```
+## 3. Dataset Preparation
+Generating the similarity graph and embeddings can be time-consuming. To save time, you can skip this step and download the pre-generated data directly from [this link](https://tigergraph-tutorial-data.s3.us-west-1.amazonaws.com/vector/song_embeddings.csv).
 
-## 3. Dataset Preparation (Optional)
-Generating the similarity graph and embeddings takes time. Since the data has already been generated, you can skip this step and download it from [link](TODO: add the link here) to `$HOME/Documents/data/hybrid-search-demo/demo/data`.
+To download the file to `$HOME/Documents/data/hybrid-search-demo/demo/data`, run the following command:  
 
-### 3.1 Generate the Similarity Graph
+```bash
+curl -o $HOME/Documents/data/hybrid-search-demo/demo/data/song_embeddings.csv https://tigergraph-tutorial-data.s3.us-west-1.amazonaws.com/vector/song_embeddings.csv
+```
+
+This ensures that the dataset is readily available for use without the need to run the next two substeps.
+
+### 3.1 Generate the Similarity Graph (Optional)
 Use MinHash (LSH) Approximation to generate a similarity graph:
 ```bash
 cd $HOME/Documents/data/hybrid-search-demo/demo
@@ -102,7 +109,7 @@ Saving results...
 Saved 552094 similar song pairs to data/similar_songs.csv
 ```
 
-### 3.2 Generate Embeddings with OpenAI
+### 3.2 Generate Embeddings with OpenAI (Optional)
 Use OpenAI’s embedding model to generate song embeddings.
 
 #### 🔹 Step 1: Set up OpenAI API Key
